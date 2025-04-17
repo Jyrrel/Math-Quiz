@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz Challenge</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: #f4f7fb;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #4A90E2;
+        }
+
+        #nameInputSection {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-right: 10px;
+            width: 250px;
+            box-sizing: border-box;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .difficulty-btn {
+            padding: 12px 25px;
+            font-size: 18px;
+            background: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            background: #45a049;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #highScores {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .table-container {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f1f1f1;
+        }
+
+        .center-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .correct-answer {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+
+        .wrong-answer {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .circle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+
+        #questionText {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #E74C3C;
+        }
+
+        #answerChoices button {
+            padding: 12px 20px;
+            font-size: 18px;
+            background: #3498db;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 10px 0;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #answerChoices button:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #answerChoices button:active {
+            background: #2980b9;
+        }
+
+        #answersContainerHighScores {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section id="nameInputSection">
+            <h1>Welcome to the Math Quiz Challenge</h1>
+            <input type="text" id="playerName" placeholder="Enter your name" autocomplete="off">
+            <button id="nameSubmit">Start</button>
+        </section>
+
+        <section id="difficultySelection" style="display: none;">
+            <h2>Select Difficulty</h2>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn" data-mode="easy">Easy</button>
+                <button class="difficulty-btn" data-mode="medium">Medium</button>
+                <button class="difficulty-btn" data-mode="hard">Hard</button>
+            </div>
+        </section>
+
+        <section id="gameSection" style="display: none;">
+            <h2>Difficulty: <span id="currentDifficulty"></span></h2>
+            <div id="questionTracker"></div>
+            <h3 id="questionText"></h3>
+            <div id="answerChoices" class="answer-options"></div>
+            <div class="timer">Time Left: <span id="timeLeft">15</span>s</div>
+        </section>
+
+        <section id="highScores" style="display: none;">
+            <h2>🏆 Final Score</h2>
+            <div id="finalScore"></div>
+            <div id="answerCircles"></div>
+            <button id="showAnswersHighScores">Show Your Answers</button>
+            <div id="answersContainerHighScores" style="display: none;"></div>
+
+            <h2>Leaderboard</h2>
+            <div class="score-container">
+                <div class="table-container">
+                    <h3>Easy</h3>
+                    <table><thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead><tbody id="easyScores"></tbody></table>
+                </div>
+                <div class="table-container">
+                    <h3>Medium</h3>
+                    <table><thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead><tbody id="mediumScores"></tbody></table>
+                </div>
+                <div class="table-container">
+                    <h3>Hard</h3>
+                    <table><thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead><tbody id="hardScores"></tbody></table>
+                </div>
+            </div>
+
+            <div class="center-buttons">
+                <button id="retry">Retry</button>
+                <button id="backButton">Back</button>
+                <button id="quit">Quit</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let playerName = "";
+        let score = 0;
+        let questionIndex = 0;
+        let timeLeft = 15;
+        let timer;
+        let currentDifficulty = "";
+        let playerScores = { easy: [], medium: [], hard: [] };
+        let questionsAnswered = [];
+
+        function handleNameSubmit() {
+            playerName = document.getElementById("playerName").value.trim();
+            if (!playerName) {
+                alert("Please enter your name first.");
+                return;
+            }
+            document.getElementById("nameInputSection").style.display = "none";
+            document.getElementById("difficultySelection").style.display = "block";
+        }
+
+        function handleDifficultySelection(difficulty) {
+            currentDifficulty = difficulty;
+            startGame(currentDifficulty);
+        }
+
+        document.getElementById("nameSubmit").addEventListener("click", handleNameSubmit);
+        document.getElementById("playerName").addEventListener("keydown", (event) => {
+            if (event.key === "Enter") handleNameSubmit();
+        });
+
+        document.querySelectorAll(".difficulty-btn").forEach(btn => {
+            btn.addEventListener("click", () => handleDifficultySelection(btn.getAttribute("data-mode")));
+            btn.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") handleDifficultySelection(btn.getAttribute("data-mode"));
+            });
+        });
+
+        function startGame(difficulty) {
+            document.getElementById("difficultySelection").style.display = "none";
+            document.getElementById("gameSection").style.display = "block";
+            document.getElementById("currentDifficulty").innerText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            score = 0;
+            questionIndex = 0;
+            questionsAnswered = [];
+            generateQuestion(difficulty);
+        }
+
+        function generateQuestion(difficulty) {
+            let num1 = Math.floor(Math.random() * 10) + 1;
+            let num2 = Math.floor(Math.random() * 10) + 1;
+            let correctAnswer;
+            let questionText;
+
+            if (difficulty === "easy") {
+                correctAnswer = num1 + num2;
+                questionText = `${num1} + ${num2} = ?`;
+            } else if (difficulty === "medium") {
+                correctAnswer = num1 * num2;
+                questionText = `${num1} × ${num2} = ?`;
+            } else {
+                correctAnswer = Math.pow(num1, 2) - num2;
+                questionText = `${num1}² - ${num2} = ?`;
+            }
+
+            document.getElementById("questionText").innerText = questionText;
+            document.getElementById("questionTracker").innerText = `Question ${questionIndex + 1}/10`;
+
+            let choices = [correctAnswer, correctAnswer + 1, correctAnswer - 1, correctAnswer + 2];
+            choices.sort(() => Math.random() - 0.5);
+
+            let answerContainer = document.getElementById("answerChoices");
+            answerContainer.innerHTML = "";
+
+            choices.forEach(choice => {
+                let btn = document.createElement("button");
+                btn.innerText = choice;
+                btn.onclick = () => checkAnswer(btn, correctAnswer, choice);
+                answerContainer.appendChild(btn);
+            });
+
+            resetTimer(correctAnswer);
+        }
+
+        function checkAnswer(selectedBtn, correctAnswer, selectedAnswer) {
+            let isCorrect = parseInt(selectedBtn.innerText) === correctAnswer;
+            if (!isCorrect) {
+                selectedBtn.classList.add("wrong-answer");
+                setTimeout(() => selectedBtn.classList.remove("wrong-answer"), 300);
+            } else {
+                score++;
+            }
+
+            questionsAnswered.push({
+                question: document.getElementById("questionText").innerText,
+                correctAnswer: correctAnswer,
+                selectedAnswer: selectedAnswer
+            });
+
+            questionIndex++;
+            if (questionIndex < 10) {
+                generateQuestion(currentDifficulty);
+            } else {
+                endGame();
+            }
+        }
+
+        function resetTimer(correctAnswer) {
+            clearInterval(timer);
+            timeLeft = 15;
+            document.getElementById("timeLeft").innerText = timeLeft;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timeLeft").innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    questionIndex++;
+                    if (questionIndex < 10) {
+                        generateQuestion(currentDifficulty);
+                    } else {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById("gameSection").style.display = "none";
+            document.getElementById("highScores").style.display = "block";
+            addPlayerScore(playerName, score, currentDifficulty);
+            displayFinalScore();
+        }
+
+        function addPlayerScore(name, score, difficulty) {
+            playerScores[difficulty].push({ name: name, score: score });
+            updateRankings();
+        }
+
+        function updateRankings() {
+            for (let difficulty in playerScores) {
+                playerScores[difficulty].sort((a, b) => b.score - a.score);
+            }
+            displayRankings();
+        }
+
+        function displayRankings() {
+            ["easy", "medium", "hard"].forEach(difficulty => {
+                const tableBody = document.getElementById(`${difficulty}Scores`);
+                tableBody.innerHTML = "";
+                playerScores[difficulty].forEach((player, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.score}</td>`;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        document.getElementById("showAnswersHighScores").addEventListener("click", () => {
+            let resultContainer = document.getElementById("answersContainerHighScores");
+            if (resultContainer.style.display === "none") {
+                resultContainer.innerHTML = "<h3>Your Answers</h3>";
+                questionsAnswered.forEach((q, index) => {
+                    let questionResult = document.createElement("p");
+                    questionResult.innerHTML = `<strong>Q${index + 1}:</strong> ${q.question} <br>
+                        Your Answer: <span style="color: ${q.selectedAnswer == q.correctAnswer ? 'green' : 'red'}">${q.selectedAnswer}</span> 
+                        <br> Correct Answer: <span style="font-weight: bold; color: green">${q.correctAnswer}</span>`;
+                    resultContainer.appendChild(questionResult);
+                });
+                resultContainer.style.display = "block";
+                document.getElementById("showAnswersHighScores").innerText = "Hide Your Answers";
+            } else {
+                resultContainer.style.display = "none";
+                document.getElementById("showAnswersHighScores").innerText = "Show Your Answers";
+            }
+        });
+
+        function displayFinalScore() {
+            const finalScoreElement = document.getElementById("finalScore");
+            finalScoreElement.innerText = `You've scored ${score} out of 10`;
+            finalScoreElement.style.display = "block";
+
+            const answerCircles = document.getElementById("answerCircles");
+            answerCircles.innerHTML = "";
+            questionsAnswered.forEach((q) => {
+                const circle = document.createElement("div");
+                circle.className = "circle";
+                circle.style.backgroundColor = q.selectedAnswer == q.correctAnswer ? "#28a745" : "#dc3545";
+                answerCircles.appendChild(circle);
+            });
+            answerCircles.style.display = "block";
+        }
+
+        document.getElementById("backButton").addEventListener("click", () => {
+            document.getElementById("gameSection").style.display = "none";
+            document.getElementById("difficultySelection").style.display = "block";
+            document.getElementById("highScores").style.display = "none";
+            score = 0;
+            questionIndex = 0;
+            questionsAnswered = [];
+            document.getElementById("currentDifficulty").innerText = "";
+        });
+
+        document.getElementById("retry").addEventListener("click", () => {
+            document.getElementById("highScores").style.display = "none";
+            document.getElementById("difficultySelection").style.display = "block";
+        });
+
+        document.getElementById("quit").addEventListener("click", () => {
+            document.getElementById("highScores").style.display = "none";
+            document.getElementById("nameInputSection").style.display = "block";
+        });
+    </script>
+</body>
+</html>
